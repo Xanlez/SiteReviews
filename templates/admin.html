@@ -2,94 +2,70 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Панель управления</title>
+    <title>Админ-панель</title>
     <style>
-        :root { --green: #27ae60; --red: #e74c3c; --border: #e5e7eb; --bg: #f9fafb; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #111827; }
-        .container { max-width: 700px; margin: 0 auto; }
-
-        h1 { font-size: 1.5rem; color: var(--green); margin-bottom: 24px; text-align: center; }
-
-        .card { background: white; padding: 24px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .form-group { display: flex; gap: 10px; }
-        input { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 16px; outline: none; }
-        .btn-add { background: var(--green); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; }
-
-        /* Стили списка ресторанов */
-        .rest-block { background: white; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 20px; overflow: hidden; }
-        .rest-header {
-            background: #fff; padding: 20px; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border);
-        }
-        .rest-name { font-weight: 800; font-size: 1.2rem; color: #1f2937; }
-
-        .view-btn {
-            text-decoration: none; color: var(--green); font-size: 0.85rem; font-weight: 600;
-            padding: 6px 12px; border: 1px solid var(--green); border-radius: 8px;
-        }
-
-        /* Список отзывов внутри ресторана */
-        .reviews-table { width: 100%; border-collapse: collapse; background: #fcfcfc; }
-        .review-row { border-bottom: 1px solid #f1f1f1; }
-        .review-row:last-child { border-bottom: none; }
-        .review-cell { padding: 12px 20px; font-size: 0.9rem; }
-        .cell-user { font-weight: 600; width: 120px; }
-        .cell-text { color: #4b5563; }
-        .cell-rating { color: #f1c40f; font-weight: bold; width: 60px; }
-
-        .btn-delete {
-            background: none; border: none; color: var(--red); cursor: pointer;
-            font-size: 0.8rem; font-weight: 600; padding: 5px; opacity: 0.6; transition: 0.2s;
-        }
-        .btn-delete:hover { opacity: 1; }
-
-        .no-reviews { padding: 20px; text-align: center; color: #9ca3af; font-size: 0.85rem; }
+        :root { --green: #27ae60; --border: #e5e7eb; --bg: #f9fafb; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card { background: white; padding: 20px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        input, button { padding: 12px; border-radius: 10px; border: 1px solid var(--border); }
+        .btn { background: var(--green); color: white; border: none; font-weight: 600; cursor: pointer; width: 100%; }
+        .rest-box { background: white; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 20px; overflow: hidden; }
+        .rest-head { padding: 15px; background: #fff; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        td, th { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        .del-btn { color: #e74c3c; background: none; border: none; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Админ-панель</h1>
+        <h1 style="color: var(--green)">Управление</h1>
 
-        <div class="card">
-            <p style="margin-top: 0; font-weight: 600; color: #6b7280; font-size: 0.9rem;">Новое заведение:</p>
-            <form action="/admin/add_restaurant" method="post" class="form-group">
-                <input type="text" name="name" placeholder="Название (напр. Додо Пицца)" required>
-                <button type="submit" class="btn-add">Создать</button>
-            </form>
+        <div class="grid">
+            <div class="card">
+                <p><b>Новое заведение</b></p>
+                <form action="/admin/add_restaurant" method="post" style="display: flex; flex-direction: column; gap: 10px;">
+                    <input type="text" name="name" placeholder="Название" required>
+                    <button type="submit" class="btn">Создать</button>
+                </form>
+            </div>
+            <div class="card">
+                <p><b>Новый сотрудник</b></p>
+                <form action="/admin/add_staff" method="post" style="display: flex; flex-direction: column; gap: 10px;">
+                    <input type="text" name="username" placeholder="Логин" required>
+                    <input type="password" name="password" placeholder="Пароль" required>
+                    <button type="submit" class="btn" style="background: #34495e;">Добавить</button>
+                </form>
+            </div>
         </div>
 
         {% for r in restaurants %}
-        <div class="rest-block">
-            <div class="rest-header">
-                <div class="rest-info">
-                    <span class="rest-name">{{ r.name }}</span>
-                    <div style="font-size: 0.8rem; color: #9ca3af;">ID: {{ r.id }}</div>
-                </div>
-                <a href="/restaurant/{{ r.id }}" class="view-btn" target="_blank">Открыть форму</a>
+        <div class="rest-box">
+            <div class="rest-head">
+                <b>{{ r.name }}</b>
+                <a href="/restaurant/{{ r.id }}" target="_blank" style="color: var(--green); text-decoration: none; font-size: 0.8rem; font-weight: bold;">Открыть форму ↗</a>
             </div>
-
-            <table class="reviews-table">
+            <table>
                 {% if r.reviews %}
                     {% for rev in r.reviews %}
-                    <tr class="review-row">
-                        <td class="review-cell cell-user">{{ rev.user_name }}</td>
-                        <td class="review-cell cell-rating">{{ rev.rating }}/5</td>
-                        <td class="review-cell cell-text">{{ rev.text }}</td>
-                        <td class="review-cell" style="text-align: right;">
-                            <form action="/admin/delete_review/{{ rev.id }}" method="post" style="margin:0;">
-                                <button type="submit" class="btn-delete">Удалить</button>
+                    <tr>
+                        <td style="width: 100px;"><b>{{ rev.user_name }}</b></td>
+                        <td style="color: #f1c40f; width: 50px;">{{ rev.rating }}/5</td>
+                        <td>{{ rev.text }}</td>
+                        <td style="text-align: right; width: 80px;">
+                            <form action="/admin/delete_review/{{ rev.id }}" method="post">
+                                <button type="submit" class="del-btn">Удалить</button>
                             </form>
                         </td>
                     </tr>
                     {% endfor %}
                 {% else %}
-                    <tr><td colspan="4" class="no-reviews">Отзывов пока нет</td></tr>
+                    <tr><td colspan="4" style="text-align: center; color: #999; padding: 20px;">Отзывов пока нет</td></tr>
                 {% endif %}
             </table>
         </div>
         {% endfor %}
-
     </div>
 </body>
 </html>

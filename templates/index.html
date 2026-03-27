@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отзывы о Фастфуде</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fbf9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #27ae60; text-align: center; }
+
+        /* Форма */
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(46, 204, 113, 0.1); border: 1px solid #e0eee0; margin-bottom: 30px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #2d5a27; }
+        select, textarea, input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1.5px solid #d4e4d4; border-radius: 8px; box-sizing: border-box; }
+        select:focus, textarea:focus { outline: none; border-color: #2ecc71; }
+
+        button { background-color: #2ecc71; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; transition: 0.3s; }
+        button:hover { background-color: #27ae60; }
+
+        /* Список отзывов */
+        .review-item { background: white; padding: 15px; border-left: 5px solid #2ecc71; border-radius: 4px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .rest-name { font-weight: bold; color: #27ae60; margin-right: 10px; }
+        .stars { color: #f1c40f; font-size: 1.1em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌿 FoodReview</h1>
+
+        <div class="card">
+            <form action="/add_review" method="post">
+                <label>Выберите заведение:</label>
+                <select name="restaurant_id">
+                    {% for r in restaurants %}
+                    <option value="{{ r.id }}">{{ r.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <label>Ваша оценка (1-5):</label>
+                <input type="number" name="rating" min="1" max="5" value="5">
+
+                <label>Ваш отзыв:</label>
+                <textarea name="text" rows="3" placeholder="Что вам понравилось?" required></textarea>
+
+                <button type="submit">Оставить отзыв</button>
+            </form>
+        </div>
+
+        <div class="reviews-list">
+            {% for review in reviews %}
+            <div class="review-item">
+                <span class="rest-name">{{ review.restaurant.name }}</span>
+                <span class="stars">{{ "⭐" * review.rating }}</span>
+                <p>{{ review.text }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

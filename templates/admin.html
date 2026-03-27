@@ -4,65 +4,90 @@
     <meta charset="UTF-8">
     <title>Админ-панель</title>
     <style>
-        :root { --green: #27ae60; --border: #e5e7eb; --bg: #f9fafb; }
-        body { font-family: system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .card { background: white; padding: 20px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 20px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        input, button { padding: 12px; border-radius: 10px; border: 1px solid var(--border); }
-        .btn { background: var(--green); color: white; border: none; font-weight: 600; cursor: pointer; width: 100%; }
+        :root { --green: #27ae60; --red: #e74c3c; --border: #e5e7eb; }
+        body { font-family: sans-serif; background: #f9fafb; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        .card { background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--border); }
+        input, button, select { padding: 10px; border-radius: 8px; border: 1px solid var(--border); width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        .btn { background: var(--green); color: white; border: none; font-weight: bold; cursor: pointer; }
         .rest-box { background: white; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 20px; overflow: hidden; }
-        .rest-head { padding: 15px; background: #fff; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        td, th { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
-        .del-btn { color: #e74c3c; background: none; border: none; cursor: pointer; font-weight: bold; }
+        .rest-head { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        td, th { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+        .del-btn { color: var(--red); background: none; border: none; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 style="color: var(--green)">Управление</h1>
-
+        <header style="display: flex; justify-content: space-between;">
+            <h1>Управление</h1>
+            <span>Админ: <b>{{ current_admin }}</b></span>
+        </header>
         <div class="grid">
             <div class="card">
-                <p><b>Новое заведение</b></p>
-                <form action="/admin/add_restaurant" method="post" style="display: flex; flex-direction: column; gap: 10px;">
+                <p><b>Новый ресторан</b></p>
+                <form action="/admin/add_restaurant" method="post">
                     <input type="text" name="name" placeholder="Название" required>
+                    <input type="text" name="slug" placeholder="URL (pelmennaya)" required>
                     <button type="submit" class="btn">Создать</button>
                 </form>
             </div>
             <div class="card">
-                <p><b>Новый сотрудник</b></p>
-                <form action="/admin/add_staff" method="post" style="display: flex; flex-direction: column; gap: 10px;">
+                <p><b>Персонал</b></p>
+                <form action="/admin/add_staff" method="post">
                     <input type="text" name="username" placeholder="Логин" required>
                     <input type="password" name="password" placeholder="Пароль" required>
                     <button type="submit" class="btn" style="background: #34495e;">Добавить</button>
                 </form>
+                {% for s in staff %}
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px;">
+                    <span>{{ s.username }}</span>
+                    {% if s.username != current_admin %}
+                    <form action="/admin/delete_staff/{{ s.id }}" method="post">
+                        <button type="submit" class="del-btn" style="font-size: 0.7rem;">[удалить]</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="card">
+                <p><b>Пароль</b></p>
+                <form action="/admin/change_password" method="post">
+                    <select name="user_id">
+                        {% for u in staff %}
+                        <option value="{{ u.id }}">{{ u.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="password" name="new_password" placeholder="Новый пароль" required>
+                    <button type="submit" class="btn" style="background: #f39c12;">Обновить</button>
+                </form>
             </div>
         </div>
-
         {% for r in restaurants %}
         <div class="rest-box">
             <div class="rest-head">
-                <b>{{ r.name }}</b>
-                <a href="/restaurant/{{ r.id }}" target="_blank" style="color: var(--green); text-decoration: none; font-size: 0.8rem; font-weight: bold;">Открыть форму ↗</a>
+                <b>{{ r.name }} ({{ r.slug }})</b>
+                <div style="display: flex; gap: 10px;">
+                    <a href="/restaurant/{{ r.slug }}" target="_blank" style="color: var(--green); text-decoration: none;">Открыть ↗</a>
+                    <form action="/admin/delete_restaurant/{{ r.id }}" method="post" onsubmit="return confirm('Удалить всё?')">
+                        <button type="submit" class="del-btn">×</button>
+                    </form>
+                </div>
             </div>
             <table>
-                {% if r.reviews %}
-                    {% for rev in r.reviews %}
-                    <tr>
-                        <td style="width: 100px;"><b>{{ rev.user_name }}</b></td>
-                        <td style="color: #f1c40f; width: 50px;">{{ rev.rating }}/5</td>
-                        <td>{{ rev.text }}</td>
-                        <td style="text-align: right; width: 80px;">
-                            <form action="/admin/delete_review/{{ rev.id }}" method="post">
-                                <button type="submit" class="del-btn">Удалить</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr><td colspan="4" style="text-align: center; color: #999; padding: 20px;">Отзывов пока нет</td></tr>
-                {% endif %}
+                {% for rev in r.reviews %}
+                <tr>
+                    <td>{{ rev.user_name }}</td>
+                    <td>{{ rev.rating }}⭐</td>
+                    <td>{{ rev.text }}</td>
+                    <td>
+                        <form action="/admin/delete_review/{{ rev.id }}" method="post">
+                            <button type="submit" class="del-btn">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
             </table>
         </div>
         {% endfor %}

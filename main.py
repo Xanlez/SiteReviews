@@ -43,15 +43,22 @@ def startup_populate(db: Session = next(get_db())):
             db.add(Restaurant(name=name))
         db.commit()
 
+
 @app.get("/")
 def index(request: Request, db: Session = Depends(get_db)):
     restaurants = db.query(Restaurant).all()
     reviews = db.query(Review).order_by(Review.id.desc()).all()
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "restaurants": restaurants,
-        "reviews": reviews
-    })
+
+    # ПРАВИЛЬНЫЙ ВАРИАНТ ДЛЯ НОВЫХ ВЕРСИЙ:
+    return templates.TemplateResponse(
+        request=request,  # Передаем request ОТДЕЛЬНО
+        name="index.html",  # Имя файла
+        context={  # Остальные данные
+            "restaurants": restaurants,
+            "reviews": reviews
+        }
+    )
+
 
 @app.post("/add_review")
 def add_review(
